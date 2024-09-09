@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historical Guide</title>
+
+    {% load static %}
+
+    <!-- Link to your CSS file -->
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <!-- Link to Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="title">🌍 Historical Information Guide</h1>
+
+        <!-- Form to input place name -->
+        <form id="location-form" class="form">
+            <input type="text" id="place-name" placeholder="Enter a place name..." required class="input">
+            <button type="submit" class="button">Get Information</button>
+        </form>
+
+        <!-- Display the information -->
+        <div id="info-display" class="info-display"></div>
+
+        <!-- Button to read the result aloud -->
+        <button id="speak-button" class="button speak-button" style="display: none;">🔊 Read Aloud</button>
+    </div>
+
+    <script>
+        document.getElementById('location-form').addEventListener('submit', async function (event) {
+            event.preventDefault();
+            const placeName = document.getElementById('place-name').value;
+
+            // Fetch the information from the backend
+            const response = await fetch(`/get-location-info/?place_name=${encodeURIComponent(placeName)}`);
+            const data = await response.json();
+
+            // Display the information
+            const infoDisplay = document.getElementById('info-display');
+            infoDisplay.innerHTML = `<h2>${data.place_name}</h2><p>${data.summary}</p>`;
+
+            // Show the speak button
+            const speakButton = document.getElementById('speak-button');
+            speakButton.style.display = 'inline';
+            speakButton.onclick = () => readAloud(data.summary);
+        });
+
+        // Function to read the summary aloud using the Web Speech API
+        function readAloud(text) {
+            const synth = window.speechSynthesis;
+            const utterance = new SpeechSynthesisUtterance(text);
+            synth.speak(utterance);
+        }
+    </script>
+</body>
+
+</html>
